@@ -187,23 +187,38 @@ MiscVal + MoSold + YrSold" %>%
 Fit one Random Forest model `model_rf` using any approach you want.
 
 ```{r}
-
+#create random forest model (2 nodes, 100 trees)
+model_rf <- randomForest(
+  form = model_formula,
+  data = training, 
+  mtry = 2,
+  ntree = 100 
+)
 ```
 
-
-
 ***
-
-
 
 # Make predictions and submit to Kaggle
 
 Using `model_rf` make predictions and submit to Kaggle.
 
 ```{r}
+#predict on test data
+test <- test %>% 
+  mutate(
+    logSalePrice_hat_rf = predict(object = model_rf, newdata = test),
+    SalePrice_hat_rf = exp(logSalePrice_hat_rf) -1
+  )
+```
 
+```{r, eval=FALSE}
+#write submission
+submission_rf <- test %>%
+  mutate(SalePrice = SalePrice_hat_rf) %>%
+  select(Id, SalePrice)
+write_csv(submission_rf, "data/submission_rf.csv")
 ```
 
 
-![](images/score_screenshot_naive.png){ width=100% }
+![](images/score_screenshot_rf.png){ width=100% }
 
